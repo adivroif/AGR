@@ -1,0 +1,6 @@
+{
+  "name": "Aroma Cafe",
+  "description": "סניף דיגיטלי של ארומה אספרסו בר המאפשר הזמנת מוצרים, התאמת פריטים, מסך הזמנות חי ומערכת ניהול טבלאות API מלאה.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
