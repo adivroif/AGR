@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Tv, CheckCircle, Flame, Gift, RefreshCw, Sparkles, UserCheck, Eye, EyeOff } from 'lucide-react';
-import { Order } from '../types.ts';
+import { Order, formatTimeToBeReady } from '../types.ts';
 
 interface OrderBoardProps {
   userOrders: any[];
@@ -215,13 +215,7 @@ export default function OrderBoard({ userOrders, onCollectOrder, currentUserId }
                       <div className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl text-xs text-emerald-950 font-bold text-right flex flex-col gap-0.5">
                         <span className="font-black text-emerald-700 text-[10px]">⏰ מועד מוכנות מבוקש (הזמנה עתידית):</span>
                         <span>
-                          {new Date(order.timeToBeReady).toLocaleString('he-IL', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                          {formatTimeToBeReady(order.timeToBeReady)}
                         </span>
                       </div>
                     )}
@@ -336,13 +330,7 @@ export default function OrderBoard({ userOrders, onCollectOrder, currentUserId }
                       <div className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl text-xs text-emerald-950 font-bold text-right flex flex-col gap-0.5">
                         <span className="font-black text-emerald-700 text-[10px]">⏰ מועד מוכנות מבוקש (הזמנה עתידית):</span>
                         <span>
-                          {new Date(order.timeToBeReady).toLocaleString('he-IL', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                          {formatTimeToBeReady(order.timeToBeReady)}
                         </span>
                       </div>
                     )}
@@ -469,13 +457,7 @@ export default function OrderBoard({ userOrders, onCollectOrder, currentUserId }
                       <div className="mt-2 text-xs font-bold text-emerald-900 bg-emerald-50 p-2 rounded-xl border border-emerald-200 max-w-md text-right flex flex-col gap-0.5">
                         <span className="text-emerald-700 block text-[10px] font-black">⏰ מועד מוכנות מבוקש (הזמנה עתידית):</span>
                         <span>
-                          {new Date(order.timeToBeReady).toLocaleString('he-IL', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                          {formatTimeToBeReady(order.timeToBeReady)}
                         </span>
                       </div>
                     )}

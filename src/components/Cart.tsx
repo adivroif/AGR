@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Trash2, Tag, Gift, MapPin, Truck, Check, Sparkles, User, AlertCircle, FileText, Calendar, Clock } from 'lucide-react';
-import { CartItem, Product, Order, Branch, Coupon, User as DbUser, BASE_URL } from '../types.ts';
+import { CartItem, Product, Order, Branch, Coupon, User as DbUser, BASE_URL, formatTimeToBeReady } from '../types.ts';
 
 interface CartProps {
   cart: CartItem[];
@@ -279,13 +279,7 @@ export default function Cart({ cart, products, onUpdateQuantity, onRemoveItem, o
             <div className="flex flex-col text-xs border-b border-zinc-200 pb-2 gap-1">
               <span className="text-zinc-500 text-right">מועד מוכנות מבוקש (הזמנה עתידית):</span>
               <span className="font-bold text-emerald-700 text-right bg-emerald-50 p-2 rounded-lg border border-emerald-200">
-                {new Date(lastPlacedOrder.timeToBeReady || lastPlacedOrder.TimeToBeReady).toLocaleString('he-IL', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
+                {formatTimeToBeReady(lastPlacedOrder.timeToBeReady || lastPlacedOrder.TimeToBeReady)}
               </span>
             </div>
           )}

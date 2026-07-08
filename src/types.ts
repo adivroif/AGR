@@ -146,4 +146,32 @@ export function getNormalizedCategoryId(categoryId: string, categories?: Categor
   return 'other';
 }
 
+export function formatTimeToBeReady(dateStr: string | null | undefined): string {
+  if (!dateStr) return '';
+  try {
+    const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
+    if (match) {
+      const [_, year, month, day, hour, minute] = match;
+      return `${day}/${month}/${year}, ${hour}:${minute}`;
+    }
+    
+    const matchDMY = dateStr.match(/(\d{2})[\/\.-](\d{2})[\/\.-](\d{4})[,\s]+(\d{2}):(\d{2})/);
+    if (matchDMY) {
+      const [_, day, month, year, hour, minute] = matchDMY;
+      return `${day}/${month}/${year}, ${hour}:${minute}`;
+    }
+
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    const hour = String(d.getHours()).padStart(2, '0');
+    const minute = String(d.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year}, ${hour}:${minute}`;
+  } catch (e) {
+    return dateStr;
+  }
+}
+
 export const BASE_URL = 'https://aromaapplication-gqgscbffcmgeffdk.westeurope-01.azurewebsites.net';
