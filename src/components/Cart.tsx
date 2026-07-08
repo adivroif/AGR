@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Trash2, Tag, Gift, MapPin, Truck, Check, Sparkles, User, AlertCircle } from 'lucide-react';
+import { ShoppingBag, Trash2, Tag, Gift, MapPin, Truck, Check, Sparkles, User, AlertCircle, FileText, Calendar, Clock } from 'lucide-react';
 import { CartItem, Product, Order, Branch, Coupon, User as DbUser, BASE_URL } from '../types.ts';
 
 interface CartProps {
@@ -23,6 +23,22 @@ export default function Cart({ cart, products, onUpdateQuantity, onRemoveItem, o
   const [selectedBranchId, setSelectedBranchId] = useState<string>('bb76b426-af84-463c-8db1-b633ffc2387b');
   const [orderType, setOrderType] = useState<'Pickup' | 'Delivery'>('Pickup');
   const [couponCode, setCouponCode] = useState<string>('');
+  const [orderNotes, setOrderNotes] = useState<string>('');
+  const [isFutureOrder, setIsFutureOrder] = useState<boolean>(false);
+  const [futureDate, setFutureDate] = useState<string>(() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
+  const [futureTime, setFutureTime] = useState<string>(() => {
+    const d = new Date();
+    d.setHours(d.getHours() + 1);
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  });
   
   // Loaded lists
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -158,6 +174,10 @@ export default function Cart({ cart, products, onUpdateQuantity, onRemoveItem, o
       const generatedOrderId = generateUUID();
       const generatedOrderNumber = Math.floor(100000000 + Math.random() * 900000000); // 9-digit random order number
 
+      const timeToBeReadyVal = isFutureOrder && futureDate && futureTime
+        ? `${futureDate}T${futureTime}:00`
+        : null;
+
       const res = await fetch(`${BASE_URL}/api/Orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -174,6 +194,9 @@ export default function Cart({ cart, products, onUpdateQuantity, onRemoveItem, o
           totalPrice: Number(totalPrice),
           couponId: activeCoupon?.couponId || null,
           estimatedReadyTime: null,
+          orderDescription: orderNotes,
+          timeToBeReady: timeToBeReadyVal,
+          TimeToBeReady: timeToBeReadyVal,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         })
@@ -207,6 +230,8 @@ export default function Cart({ cart, products, onUpdateQuantity, onRemoveItem, o
         setActiveCoupon(null);
         setCouponCode('');
         setCouponSuccess(false);
+        setOrderNotes('');
+        setIsFutureOrder(false);
       }
     } catch (err) {
       console.error('Error on checkout:', err);
@@ -244,6 +269,26 @@ export default function Cart({ cart, products, onUpdateQuantity, onRemoveItem, o
             <span className="text-zinc-500">שם הלקוח בטבלה:</span>
             <span className="font-bold text-zinc-800">{customerName}</span>
           </div>
+          {lastPlacedOrder.orderDescription && (
+            <div className="flex flex-col text-xs border-b border-zinc-200 pb-2 gap-1">
+              <span className="text-zinc-500 text-right">הערות להזמנה:</span>
+              <span className="font-bold text-zinc-800 text-right bg-zinc-100 p-2 rounded-lg border border-zinc-200">{lastPlacedOrder.orderDescription}</span>
+            </div>
+          )}
+          {(lastPlacedOrder.timeToBeReady || lastPlacedOrder.TimeToBeReady) && (
+            <div className="flex flex-col text-xs border-b border-zinc-200 pb-2 gap-1">
+              <span className="text-zinc-500 text-right">מועד מוכנות מבוקש (הזמנה עתידית):</span>
+              <span className="font-bold text-emerald-700 text-right bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+                {new Date(lastPlacedOrder.timeToBeReady || lastPlacedOrder.TimeToBeReady).toLocaleString('he-IL', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </span>
+            </div>
+          )}
           <div className="flex justify-between items-center text-xs">
             <span className="text-zinc-500">סכום סופי לתשלום:</span>
             <span className="font-mono font-black text-blue-600 text-sm">₪{lastPlacedOrder.totalPrice}</span>
@@ -377,6 +422,73 @@ export default function Cart({ cart, products, onUpdateQuantity, onRemoveItem, o
               >
                 🚚 משלוח (+₪15)
               </button>
+            </div>
+
+            {/* Future Order Toggle and Picker */}
+            <div className="space-y-2 border border-zinc-200 bg-white p-3.5 rounded-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-emerald-600" />
+                  <span className="text-xs font-black text-zinc-800">הזמנה עתידית</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsFutureOrder(!isFutureOrder)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    isFutureOrder ? 'bg-emerald-500' : 'bg-zinc-200'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                      isFutureOrder ? '-translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {isFutureOrder && (
+                <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-zinc-100">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-zinc-500 flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-zinc-400" />
+                      <span>תאריך</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={futureDate}
+                      onChange={(e) => setFutureDate(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-xs font-bold text-zinc-800 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-zinc-500 flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-zinc-400" />
+                      <span>שעה</span>
+                    </label>
+                    <input
+                      type="time"
+                      value={futureTime}
+                      onChange={(e) => setFutureTime(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-xs font-bold text-zinc-800 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Order Notes (orderDescription) */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider flex items-center gap-1">
+                <FileText className="w-3 h-3 text-blue-600" />
+                <span>הערות להזמנה</span>
+              </label>
+              <textarea
+                value={orderNotes}
+                onChange={(e) => setOrderNotes(e.target.value)}
+                placeholder="למשל: לארוז בנפרד, לשים רטבים בצד, ללא בצל..."
+                rows={2}
+                className="w-full bg-white border border-zinc-200 rounded-lg p-2.5 text-xs text-zinc-900 focus:outline-none focus:border-blue-500 resize-none font-bold"
+              />
             </div>
 
             {/* Coupon field */}

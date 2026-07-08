@@ -91,6 +91,9 @@ export interface Order {
   totalPrice: number;
   couponId?: string;
   estimatedReadyTime?: string;
+  orderDescription?: string;
+  timeToBeReady?: string;
+  TimeToBeReady?: string;
   createdAt?: string;
   updatedAt?: string;
 }

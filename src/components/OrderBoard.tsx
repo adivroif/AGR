@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Tv, CheckCircle, Flame, Gift, RefreshCw, Sparkles, UserCheck } from 'lucide-react';
+import { Tv, CheckCircle, Flame, Gift, RefreshCw, Sparkles, UserCheck, Eye, EyeOff } from 'lucide-react';
 import { Order } from '../types.ts';
 
 interface OrderBoardProps {
@@ -19,6 +19,8 @@ interface BoardOrder {
   source: 'user' | 'sim';
   id: string;
   userId?: string;
+  orderDescription?: string;
+  timeToBeReady?: string;
 }
 
 export default function OrderBoard({ userOrders, onCollectOrder, currentUserId }: OrderBoardProps) {
@@ -53,7 +55,9 @@ export default function OrderBoard({ userOrders, onCollectOrder, currentUserId }
               customerName: u ? u.fullName : 'אורח ארומה',
               source: 'user' as const,
               id: o.orderId,
-              userId: o.userId
+              userId: o.userId,
+              orderDescription: o.orderDescription,
+              timeToBeReady: o.timeToBeReady || o.TimeToBeReady
             };
           });
 
@@ -66,7 +70,9 @@ export default function OrderBoard({ userOrders, onCollectOrder, currentUserId }
               customerName: u ? u.fullName : 'אורח ארומה',
               source: 'user' as const,
               id: o.orderId,
-              userId: o.userId
+              userId: o.userId,
+              orderDescription: o.orderDescription,
+              timeToBeReady: o.timeToBeReady || o.TimeToBeReady
             };
           });
           
@@ -198,6 +204,28 @@ export default function OrderBoard({ userOrders, onCollectOrder, currentUserId }
                       </span>
                     </div>
 
+                    {order.orderDescription && (
+                      <div className="bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl text-xs text-amber-900 font-bold text-right">
+                        <span className="font-black text-amber-700 block text-[10px] mb-0.5">💬 הערה להזמנה:</span>
+                        {order.orderDescription}
+                      </div>
+                    )}
+
+                    {order.timeToBeReady && (
+                      <div className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl text-xs text-emerald-950 font-bold text-right flex flex-col gap-0.5">
+                        <span className="font-black text-emerald-700 text-[10px]">⏰ מועד מוכנות מבוקש (הזמנה עתידית):</span>
+                        <span>
+                          {new Date(order.timeToBeReady).toLocaleString('he-IL', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                    )}
+
                     {/* Collapsible Order Items Container */}
                     {expandedOrders[order.id] && (
                       <div className="bg-white/90 rounded-xl p-3 border border-zinc-150 text-right space-y-1.5 text-xs animate-fadeIn">
@@ -297,6 +325,28 @@ export default function OrderBoard({ userOrders, onCollectOrder, currentUserId }
                       </span>
                     </div>
 
+                    {order.orderDescription && (
+                      <div className="bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl text-xs text-amber-900 font-bold text-right">
+                        <span className="font-black text-amber-700 block text-[10px] mb-0.5">💬 הערה להזמנה:</span>
+                        {order.orderDescription}
+                      </div>
+                    )}
+
+                    {order.timeToBeReady && (
+                      <div className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl text-xs text-emerald-950 font-bold text-right flex flex-col gap-0.5">
+                        <span className="font-black text-emerald-700 text-[10px]">⏰ מועד מוכנות מבוקש (הזמנה עתידית):</span>
+                        <span>
+                          {new Date(order.timeToBeReady).toLocaleString('he-IL', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                    )}
+
                     {/* Collapsible Order Items Container */}
                     {expandedOrders[order.id] && (
                       <div className="bg-white/90 rounded-xl p-3 border border-zinc-150 text-right space-y-1.5 text-xs">
@@ -372,52 +422,114 @@ export default function OrderBoard({ userOrders, onCollectOrder, currentUserId }
             {userOrders.filter(o => o.userId === currentUserId).map(order => (
               <div 
                 key={order.id} 
-                className="bg-gradient-to-r from-zinc-50 to-white hover:from-zinc-100/50 p-4 rounded-2xl border border-zinc-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-200 shadow-2xs"
+                className="bg-gradient-to-r from-zinc-50 to-white hover:from-zinc-100/50 p-4 rounded-2xl border border-zinc-200 flex flex-col gap-4 transition-all duration-200 shadow-2xs"
               >
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-mono font-black text-blue-700 bg-blue-50 border border-blue-150 px-2.5 py-0.5 rounded-lg">
-                      #{order.orderNumber}
-                    </span>
-                    <span className="font-bold text-zinc-900">{order.customerName}</span>
-                    <span className="text-zinc-300 text-xs">•</span>
-                    <span className="text-xs text-zinc-600 font-medium">סה״כ לתשלום: <span className="font-mono font-black text-zinc-900">₪{order.totalAmount}</span></span>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-mono font-black text-blue-700 bg-blue-50 border border-blue-150 px-2.5 py-0.5 rounded-lg">
+                        #{order.orderNumber}
+                      </span>
+                      <span className="font-bold text-zinc-900">{order.customerName}</span>
+                      <span className="text-zinc-300 text-xs">•</span>
+                      <span className="text-xs text-zinc-600 font-medium">סה״כ לתשלום: <span className="font-mono font-black text-zinc-900">₪{order.totalAmount}</span></span>
+                    </div>
+                    <div className="mt-2.5 flex items-center gap-2">
+                      <span className="text-xs text-zinc-500 font-medium">מצב נוכחי:</span>
+                      {order.status === 'pending' && (
+                        <span className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full font-bold">
+                          התקבלה במערכת
+                        </span>
+                      )}
+                      {order.status === 'preparing' && (
+                        <span className="text-xs text-blue-700 bg-yellow-50 border border-yellow-300 px-2.5 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping" />
+                          <span>בהכנה במטבח</span>
+                        </span>
+                      )}
+                      {order.status === 'ready' && (
+                        <span className="text-xs text-blue-800 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full font-extrabold animate-bounce flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping" />
+                          <span>מוכן לאיסוף בדלפק!</span>
+                        </span>
+                      )}
+                      {order.status === 'collected' && (
+                        <span className="text-xs text-zinc-500 bg-zinc-100 border border-zinc-200 px-2.5 py-0.5 rounded-full font-medium">
+                          נאסף בהצלחה
+                        </span>
+                      )}
+                    </div>
+                    {order.orderDescription && (
+                      <p className="mt-2 text-xs font-bold text-zinc-700 bg-zinc-100 p-2 rounded-xl border border-zinc-200 max-w-md text-right">
+                        <span className="text-blue-600 block text-[10px] mb-0.5 font-black">הערות להזמנה:</span>
+                        {order.orderDescription}
+                      </p>
+                    )}
+                    {order.timeToBeReady && (
+                      <div className="mt-2 text-xs font-bold text-emerald-900 bg-emerald-50 p-2 rounded-xl border border-emerald-200 max-w-md text-right flex flex-col gap-0.5">
+                        <span className="text-emerald-700 block text-[10px] font-black">⏰ מועד מוכנות מבוקש (הזמנה עתידית):</span>
+                        <span>
+                          {new Date(order.timeToBeReady).toLocaleString('he-IL', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <div className="mt-2.5 flex items-center gap-2">
-                    <span className="text-xs text-zinc-500 font-medium">מצב נוכחי:</span>
-                    {order.status === 'pending' && (
-                      <span className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full font-bold">
-                        התקבלה במערכת
-                      </span>
-                    )}
-                    {order.status === 'preparing' && (
-                      <span className="text-xs text-blue-700 bg-yellow-50 border border-yellow-300 px-2.5 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping" />
-                        <span>בהכנה במטבח</span>
-                      </span>
-                    )}
+
+                  <div className="flex flex-row items-center gap-2 self-stretch sm:self-auto shrink-0 justify-end">
+                    <button
+                      onClick={() => toggleOrderDetails(order.id)}
+                      className="bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                    >
+                      {expandedOrders[order.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      <span>{expandedOrders[order.id] ? 'סגור פירוט' : 'פרטי הזמנה'}</span>
+                    </button>
+
                     {order.status === 'ready' && (
-                      <span className="text-xs text-blue-800 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full font-extrabold animate-bounce flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping" />
-                        <span>מוכן לאיסוף בדלפק!</span>
-                      </span>
-                    )}
-                    {order.status === 'collected' && (
-                      <span className="text-xs text-zinc-500 bg-zinc-100 border border-zinc-200 px-2.5 py-0.5 rounded-full font-medium">
-                        נאסף בהצלחה
-                      </span>
+                      <button
+                        onClick={() => onCollectOrder(order.id)}
+                        className="bg-gradient-to-r from-blue-600 to-blue-800 text-yellow-300 border border-yellow-400/50 hover:from-blue-700 hover:to-blue-900 font-black py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-md shadow-blue-500/20"
+                      >
+                        <UserCheck className="w-3.5 h-3.5" />
+                        <span>אספתי</span>
+                      </button>
                     )}
                   </div>
                 </div>
 
-                {order.status === 'ready' && (
-                  <button
-                    onClick={() => onCollectOrder(order.id)}
-                    className="bg-gradient-to-r from-blue-600 to-blue-800 text-yellow-300 border border-yellow-400/50 hover:from-blue-700 hover:to-blue-900 font-black py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 self-end sm:self-auto shadow-md shadow-blue-500/20"
-                  >
-                    <UserCheck className="w-3.5 h-3.5" />
-                    <span>אספתי את ההזמנה</span>
-                  </button>
+                {/* Collapsible Order Items Container */}
+                {expandedOrders[order.id] && (
+                  <div className="bg-white rounded-xl p-4 border border-zinc-150 text-right space-y-1.5 text-xs animate-fadeIn w-full">
+                    <p className="font-bold text-zinc-700 border-b border-zinc-100 pb-1.5 flex items-center justify-between">
+                      <span>תכולת ההזמנה שלי:</span>
+                      <span className="text-[10px] text-zinc-400">מזהה: {order.id.slice(0, 8)}</span>
+                    </p>
+                    {loadingItems[order.id] ? (
+                      <div className="flex items-center gap-2 text-zinc-500 py-2 justify-center">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                        <span>טוען פריטים...</span>
+                      </div>
+                    ) : !orderItemsCache[order.id] || orderItemsCache[order.id].length === 0 ? (
+                      <p className="text-zinc-500 py-1 text-center font-bold">אין פריטים להצגה.</p>
+                    ) : (
+                      <ul className="space-y-1.5 max-h-[250px] overflow-y-auto">
+                        {orderItemsCache[order.id].map((item: any, i: number) => (
+                          <li key={item.orderItemId || i} className="flex justify-between items-start py-2 border-b border-dashed border-zinc-100 last:border-0 last:pb-0">
+                            <div className="flex flex-col">
+                              <span className="font-bold text-zinc-800">{item.productName || 'מוצר ארומה'}</span>
+                              {item.notes && <span className="text-[10px] text-zinc-500 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-100 mt-0.5">הערות: {item.notes}</span>}
+                            </div>
+                            <span className="font-mono font-black text-zinc-950 bg-zinc-100 px-2.5 py-0.5 rounded text-xs h-fit">x{item.quantity}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 )}
               </div>
             ))}

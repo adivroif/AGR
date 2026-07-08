@@ -858,7 +858,9 @@ export default function App() {
               orderNumber: o.orderNumber.toString(),
               customerName: o.customerName || 'לקוח ארומה',
               totalAmount: o.totalPrice,
-              status: o.status.toLowerCase()
+              status: o.status.toLowerCase(),
+              orderDescription: o.orderDescription,
+              timeToBeReady: o.timeToBeReady || o.TimeToBeReady
             }))} 
             onCollectOrder={handleCollectOrder} 
             currentUserId={currentUserId}
