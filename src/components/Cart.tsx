@@ -226,8 +226,7 @@ export default function Cart({ cart, products, onUpdateQuantity, onRemoveItem, o
         </div>
         
         <div className="space-y-2">
-          <h3 className="text-xl font-black text-zinc-950">ההזמנה נקלטה ב-API!</h3>
-          <p className="text-xs text-zinc-500">פרטי ההזמנה נרשמו בהצלחה בטבלאות orders ו-orderItems.</p>
+          <h3 className="text-xl font-black text-zinc-950">ההזמנה נקלטה!</h3>
         </div>
 
         <div className="bg-zinc-50 p-5 rounded-xl border border-zinc-200 space-y-3.5 text-right">
@@ -239,7 +238,7 @@ export default function Cart({ cart, products, onUpdateQuantity, onRemoveItem, o
           </div>
           <div className="flex justify-between items-center text-xs border-b border-zinc-200 pb-2">
             <span className="text-zinc-500">סניף מיועד:</span>
-            <span className="font-bold text-zinc-700">{selectedBranch ? selectedBranch.branchName : 'סניף ארומה'}</span>
+            <span className="font-bold text-zinc-700">{'AGR אשדוד'}</span>
           </div>
           <div className="flex justify-between items-center text-xs border-b border-zinc-200 pb-2">
             <span className="text-zinc-500">שם הלקוח בטבלה:</span>
@@ -344,7 +343,7 @@ export default function Cart({ cart, products, onUpdateQuantity, onRemoveItem, o
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider flex items-center gap-1">
                 <User className="w-3 h-3 text-blue-600" />
-                <span>שם הלקוח להזמנה (לא ניתן לשינוי)</span>
+                <span>שם הלקוח להזמנה</span>
               </label>
               <input
                 type="text"
@@ -352,25 +351,6 @@ export default function Cart({ cart, products, onUpdateQuantity, onRemoveItem, o
                 value={customerName}
                 className="w-full bg-zinc-100 border border-zinc-200 rounded-lg p-2.5 text-xs text-zinc-500 font-black cursor-not-allowed"
               />
-            </div>
-
-            {/* Branch select */}
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider flex items-center gap-1">
-                <MapPin className="w-3 h-3 text-blue-600" />
-                <span>סניף ארומה (מתוך ה-DB)</span>
-              </label>
-              <select
-                value={selectedBranchId}
-                onChange={(e) => setSelectedBranchId(e.target.value)}
-                className="w-full bg-white border border-zinc-200 rounded-lg p-2.5 text-xs text-zinc-900 font-bold focus:outline-none focus:border-blue-500"
-              >
-                {branches.map(b => (
-                  <option key={b.branchId} value={b.branchId}>
-                    {b.branchName} ({b.city})
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Order Type Selector */}

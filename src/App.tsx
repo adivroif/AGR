@@ -854,12 +854,14 @@ export default function App() {
           <OrderBoard 
             userOrders={userOrders.map(o => ({
               id: o.orderId,
+              userId: o.userId,
               orderNumber: o.orderNumber.toString(),
               customerName: o.customerName || 'לקוח ארומה',
               totalAmount: o.totalPrice,
               status: o.status.toLowerCase()
             }))} 
             onCollectOrder={handleCollectOrder} 
+            currentUserId={currentUserId}
           />
         )}
 

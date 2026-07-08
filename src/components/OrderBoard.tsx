@@ -10,6 +10,7 @@ import { Order } from '../types.ts';
 interface OrderBoardProps {
   userOrders: any[];
   onCollectOrder: (orderId: string) => void;
+  currentUserId: string;
 }
 
 interface BoardOrder {
@@ -17,9 +18,10 @@ interface BoardOrder {
   customerName: string;
   source: 'user' | 'sim';
   id: string;
+  userId?: string;
 }
 
-export default function OrderBoard({ userOrders, onCollectOrder }: OrderBoardProps) {
+export default function OrderBoard({ userOrders, onCollectOrder, currentUserId }: OrderBoardProps) {
   const [preparingOrders, setPreparingOrders] = useState<BoardOrder[]>([]);
   const [readyOrders, setReadyOrders] = useState<BoardOrder[]>([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -50,7 +52,8 @@ export default function OrderBoard({ userOrders, onCollectOrder }: OrderBoardPro
               orderNumber: o.orderNumber.toString(),
               customerName: u ? u.fullName : 'אורח ארומה',
               source: 'user' as const,
-              id: o.orderId
+              id: o.orderId,
+              userId: o.userId
             };
           });
 
@@ -62,7 +65,8 @@ export default function OrderBoard({ userOrders, onCollectOrder }: OrderBoardPro
               orderNumber: o.orderNumber.toString(),
               customerName: u ? u.fullName : 'אורח ארומה',
               source: 'user' as const,
-              id: o.orderId
+              id: o.orderId,
+              userId: o.userId
             };
           });
           
@@ -232,13 +236,19 @@ export default function OrderBoard({ userOrders, onCollectOrder }: OrderBoardPro
                       >
                         {expandedOrders[order.id] ? 'סגור פירוט' : 'הצג פריטים'}
                       </button>
-                      <button
-                        onClick={() => handleMoveToReady(order.id)}
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-1.5 px-3 rounded-xl text-[11px] transition-all cursor-pointer text-center flex items-center justify-center gap-1 shadow-sm"
-                      >
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        <span>העבר למוכן</span>
-                      </button>
+                      {order.userId === currentUserId ? (
+                        <button
+                          onClick={() => handleMoveToReady(order.id)}
+                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-1.5 px-3 rounded-xl text-[11px] transition-all cursor-pointer text-center flex items-center justify-center gap-1 shadow-sm"
+                        >
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          <span>העבר למוכן</span>
+                        </button>
+                      ) : (
+                        <div className="flex-1 bg-zinc-50 border border-zinc-150 text-zinc-400 font-bold py-1.5 px-3 rounded-xl text-[10px] text-center flex items-center justify-center select-none" title="ניתן לעדכן סטטוס רק עבור הזמנה שאתם יצרתם">
+                          <span>לקוח אחר</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -325,13 +335,19 @@ export default function OrderBoard({ userOrders, onCollectOrder }: OrderBoardPro
                       >
                         {expandedOrders[order.id] ? 'סגור פירוט' : 'הצג פריטים'}
                       </button>
-                      <button
-                        onClick={() => onCollectOrder(order.id)}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-1.5 px-3 rounded-xl text-[11px] transition-all cursor-pointer text-center flex items-center justify-center gap-1 shadow-sm"
-                      >
-                        <UserCheck className="w-3.5 h-3.5" />
-                        <span>אספתי</span>
-                      </button>
+                      {order.userId === currentUserId ? (
+                        <button
+                          onClick={() => onCollectOrder(order.id)}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-1.5 px-3 rounded-xl text-[11px] transition-all cursor-pointer text-center flex items-center justify-center gap-1 shadow-sm"
+                        >
+                          <UserCheck className="w-3.5 h-3.5" />
+                          <span>אספתי</span>
+                        </button>
+                      ) : (
+                        <div className="flex-1 bg-zinc-50 border border-zinc-150 text-zinc-400 font-bold py-1.5 px-3 rounded-xl text-[10px] text-center flex items-center justify-center select-none" title="ניתן לאסוף רק הזמנה שאתם יצרתם">
+                          <span>לקוח אחר</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -343,7 +359,7 @@ export default function OrderBoard({ userOrders, onCollectOrder }: OrderBoardPro
       </div>
 
       {/* User's Specific Order Management list */}
-      {userOrders.length > 0 && (
+      {userOrders.filter(o => o.userId === currentUserId).length > 0 && (
         <div className="bg-white border border-zinc-200 rounded-3xl p-6 space-y-4 shadow-sm">
           <div className="flex items-center gap-2 border-b border-zinc-150 pb-3">
             <span className="bg-blue-500/10 p-1.5 rounded-lg text-blue-600">
@@ -353,7 +369,7 @@ export default function OrderBoard({ userOrders, onCollectOrder }: OrderBoardPro
           </div>
 
           <div className="space-y-3">
-            {userOrders.map(order => (
+            {userOrders.filter(o => o.userId === currentUserId).map(order => (
               <div 
                 key={order.id} 
                 className="bg-gradient-to-r from-zinc-50 to-white hover:from-zinc-100/50 p-4 rounded-2xl border border-zinc-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-200 shadow-2xs"
